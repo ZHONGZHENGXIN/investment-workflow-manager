@@ -1,0 +1,13 @@
+{
+  "name": "investment-workflow-manager",
+  "services": [
+    {
+      "name": "backend",
+      "path": "backend"
+    },
+    {
+      "name": "frontend",
+      "path": "frontend"
+    }
+  ]
+}

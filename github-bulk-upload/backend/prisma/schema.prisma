@@ -1,0 +1,213 @@
+// PostgreSQL版本的Prisma Schema
+// 用于生产环境 (Zeabur)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户模型
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("USER") // USER, ADMIN, SUPER_ADMIN
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联关系
+  workflows        Workflow[]
+  executions       Execution[]
+  attachments      Attachment[]
+  reviews          Review[]
+  settings         UserSettings?
+  logs             SystemLog[]
+
+  @@map("users")
+}
+
+// 工作流模型
+model Workflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  version     String   @default("1.0.0")
+  category    String?
+  tags        String?  // JSON string for tags
+  isActive    Boolean  @default(true)
+  status      String   @default("DRAFT") // DRAFT, ACTIVE, ARCHIVED
+  metadata    String?  // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联关系
+  createdBy   String
+  creator     User              @relation(fields: [createdBy], references: [id])
+  steps       WorkflowStep[]
+  executions  Execution[]
+
+  @@map("workflows")
+}
+
+// 工作流步骤模型
+model WorkflowStep {
+  id            String   @id @default(cuid())
+  workflowId    String
+  title         String
+  description   String?
+  type          String   @default("CHECKLIST") // CHECKLIST, INPUT, DECISION, etc.
+  order         Int
+  isRequired    Boolean  @default(true)
+  estimatedTime Int?     // 预估时间（分钟）
+  dependencies  String?  // JSON string for dependencies
+  conditions    String?  // JSON string for conditions
+  metadata      String?  // JSON string
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // 关联关系
+  workflow        Workflow          @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  executionRecords ExecutionRecord[]
+
+  @@map("workflow_steps")
+}
+
+// 执行记录模型
+model Execution {
+  id          String   @id @default(cuid())
+  workflowId  String
+  userId      String
+  status      String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, etc.
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  progress    Float    @default(0) // 进度百分比
+  tags        String?  // JSON string for tags
+  metadata    String?  // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  error       String?
+
+  // 关联关系
+  workflow        Workflow          @relation(fields: [workflowId], references: [id])
+  user            User              @relation(fields: [userId], references: [id])
+  records         ExecutionRecord[]
+  attachments     Attachment[]
+  reviews         Review[]
+
+  @@map("executions")
+}
+
+// 执行步骤记录模型
+model ExecutionRecord {
+  id          String   @id @default(cuid())
+  executionId String
+  stepId      String
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, etc.
+  notes       String?
+  actualTime  Int?     // 实际耗时（分钟）
+  data        String?  // JSON string for step data
+  result      String?  // JSON string for step result
+  reviewNotes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // 关联关系
+  execution Execution    @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  step      WorkflowStep @relation(fields: [stepId], references: [id])
+
+  @@map("execution_records")
+}
+
+// 附件模型
+model Attachment {
+  id                String    @id @default(cuid())
+  filename          String
+  originalName      String
+  mimeType          String
+  size              Int
+  path              String
+  url               String?
+  description       String?
+  tags              String?   // JSON string for tags
+  metadata          String?   // JSON string
+  uploadedAt        DateTime  @default(now())
+  
+  // 关联关系
+  uploadedBy        String
+  uploader          User      @relation(fields: [uploadedBy], references: [id])
+  executionId       String?
+  execution         Execution? @relation(fields: [executionId], references: [id])
+
+  @@map("attachments")
+}
+
+// 复盘模型
+model Review {
+  id           String   @id @default(cuid())
+  executionId  String
+  title        String
+  content      String
+  rating       Int      @default(5) // 1-10评分
+  lessons      String?  // 经验教训
+  improvements String?  // 改进建议
+  tags         String?  // JSON string for tags
+  isPublic     Boolean  @default(false)
+  metadata     String?  // JSON string
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // 关联关系
+  execution Execution @relation(fields: [executionId], references: [id])
+  createdBy String
+  creator   User      @relation(fields: [createdBy], references: [id])
+
+  @@map("reviews")
+}
+
+// 用户设置模型
+model UserSettings {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  theme                 String   @default("light")
+  language              String   @default("zh-CN")
+  timezone              String   @default("Asia/Shanghai")
+  emailNotifications    Boolean  @default(true)
+  pushNotifications     Boolean  @default(true)
+  defaultWorkflowView   String   @default("list")
+  preferences           String?  // JSON string
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// 系统日志模型
+model SystemLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String?
+  resourceId String?
+  details    String?  // JSON string
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // 关联关系
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("system_logs")
+}
