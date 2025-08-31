@@ -276,7 +276,7 @@ export function useInfiniteQuery<T = any>(
   const { getNextPageParam } = options;
 
   const baseQuery = useOptimizedQuery(
-    Array.isArray(queryKey) ? [...queryKey, 'page', 0] : [queryKey, 'page', 0],
+    Array.isArray(queryKey) ? [...queryKey.map(String), 'page', '0'] : [String(queryKey), 'page', '0'],
     () => queryFn({ pageParam: 0 }),
     {
       ...options,

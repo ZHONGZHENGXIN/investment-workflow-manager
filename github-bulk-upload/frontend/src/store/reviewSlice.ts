@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { reviewService, ReviewAnalytics, ReviewInsight, ReviewReport } from '../services/review';
 
 interface ReviewState {
@@ -44,7 +44,7 @@ const initialState: ReviewState = {
 // 异步操作
 export const generateSummary = createAsyncThunk(
   'review/generateSummary',
-  async (executionId?: string, { rejectWithValue }) => {
+  async (executionId: string | undefined, { rejectWithValue }) => {
     try {
       return await reviewService.generateSummary(executionId);
     } catch (error: any) {
@@ -77,7 +77,7 @@ export const fetchAnalytics = createAsyncThunk(
 
 export const fetchInsights = createAsyncThunk(
   'review/fetchInsights',
-  async (limit?: number, { rejectWithValue }) => {
+  async (limit: number | undefined, { rejectWithValue }) => {
     try {
       return await reviewService.getReviewInsights(limit);
     } catch (error: any) {
@@ -88,7 +88,7 @@ export const fetchInsights = createAsyncThunk(
 
 export const fetchTemplate = createAsyncThunk(
   'review/fetchTemplate',
-  async (workflowType?: string, { rejectWithValue }) => {
+  async (workflowType: string | undefined, { rejectWithValue }) => {
     try {
       return await reviewService.getReviewTemplate(workflowType);
     } catch (error: any) {

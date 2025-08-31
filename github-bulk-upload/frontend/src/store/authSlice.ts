@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authService } from '../services/auth';
-import { AuthState, LoginCredentials, RegisterData, User } from '../types/user';
+import { AuthState, LoginCredentials, RegisterData } from '../types/user';
 import toast from 'react-hot-toast';
 
 // 异步thunk - 用户登录
@@ -11,7 +11,7 @@ export const loginUser = createAsyncThunk(
       const response = await authService.login(credentials);
       authService.saveAuthData(response.data.user, response.data.token);
       toast.success('登录成功！');
-      return response.data;
+      return (response as any).data;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '登录失败';
       toast.error(message);
@@ -28,7 +28,7 @@ export const registerUser = createAsyncThunk(
       const response = await authService.register(userData);
       authService.saveAuthData(response.data.user, response.data.token);
       toast.success('注册成功！');
-      return response.data;
+      return (response as any).data;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '注册失败';
       toast.error(message);
@@ -40,13 +40,13 @@ export const registerUser = createAsyncThunk(
 // 异步thunk - 获取用户信息
 export const fetchUserProfile = createAsyncThunk(
   'auth/fetchProfile',
-  async (_, { rejectWithValue }) => {
+  async (_) => {
     try {
       const response = await authService.getProfile();
-      return response.data.user;
+      return (response as any).data.user;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '获取用户信息失败';
-      return rejectWithValue(message);
+      throw new Error(message);
     }
   }
 );
@@ -54,7 +54,7 @@ export const fetchUserProfile = createAsyncThunk(
 // 异步thunk - 用户登出
 export const logoutUser = createAsyncThunk(
   'auth/logout',
-  async (_, { rejectWithValue }) => {
+  async (_) => {
     try {
       await authService.logout();
       authService.clearAuthData();

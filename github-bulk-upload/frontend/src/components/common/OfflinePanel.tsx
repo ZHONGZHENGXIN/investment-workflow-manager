@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   WifiIcon, 
-  WifiSlashIcon, 
+  NoSymbolIcon as WifiSlashIcon, 
   CloudArrowUpIcon, 
   TrashIcon,
   ExclamationTriangleIcon,

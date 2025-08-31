@@ -6,7 +6,7 @@ import { fetchUserExecutions, startExecution, deleteExecution } from '../store/e
 import { fetchUserWorkflows } from '../store/workflowSlice';
 import { logoutUser } from '../store/authSlice';
 import { Execution, ExecutionStatus } from '../types/execution';
-import { Workflow } from '../types/workflow';
+// import { Workflow } from '../types/workflow';
 import { ExecutionService } from '../services/execution';
 import toast from 'react-hot-toast';
 
@@ -46,7 +46,10 @@ const ExecutionPage: React.FC = () => {
       return;
     }
 
-    const result = await dispatch(startExecution({ workflowId: selectedWorkflow }));
+    const result = await dispatch(startExecution({ 
+      workflowId: selectedWorkflow,
+      title: `执行工作流 ${selectedWorkflow}`
+    }));
     if (startExecution.fulfilled.match(result)) {
       setShowStartModal(false);
       setSelectedWorkflow('');
@@ -70,15 +73,15 @@ const ExecutionPage: React.FC = () => {
 
   const activeWorkflows = workflows.filter(workflow => workflow.isActive);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  // const formatDate = (dateString: string) => {
+  //   return new Date(dateString).toLocaleDateString('zh-CN', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric',
+  //     hour: '2-digit',
+  //     minute: '2-digit',
+  //   });
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -224,39 +227,39 @@ const ExecutionPage: React.FC = () => {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm text-gray-600">进度</span>
                       <span className="text-sm text-gray-600">
-                        {ExecutionService.calculateProgress(execution.executionRecords || [])}%
+                        {ExecutionService.calculateProgress(execution.records || [])}%
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${ExecutionService.calculateProgress(execution.executionRecords || [])}%` }}
+                        style={{ width: `${ExecutionService.calculateProgress(execution.records || [])}%` }}
                       ></div>
                     </div>
                   </div>
 
                   {/* 时间信息 */}
                   <div className="text-xs text-gray-500 mb-4">
-                    <div>开始: {formatDate(execution.startedAt)}</div>
+                    <div>开始: {execution.startedAt ? new Date(execution.startedAt).toLocaleString() : '未知'}</div>
                     {execution.completedAt && (
-                      <div>完成: {formatDate(execution.completedAt)}</div>
+                      <div>完成: {new Date(execution.completedAt).toLocaleString()}</div>
                     )}
                     <div>
-                      持续: {ExecutionService.formatDuration(execution.startedAt, execution.completedAt)}
+                      持续: {execution.startedAt ? ExecutionService.formatDuration(execution.startedAt.toString(), execution.completedAt?.toString()) : '未知'}
                     </div>
                   </div>
 
                   {/* 操作按钮 */}
                   <div className="flex items-center justify-between">
                     <button
-                      onClick={() => handleViewExecution(execution)}
+                      onClick={() => handleViewExecution(execution as any)}
                       className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                     >
                       {execution.status === ExecutionStatus.COMPLETED ? '查看详情' : '继续执行'}
                     </button>
                     
                     <button
-                      onClick={() => handleDeleteExecution(execution)}
+                      onClick={() => handleDeleteExecution(execution as any)}
                       className="text-red-600 hover:text-red-900 text-sm font-medium"
                     >
                       删除

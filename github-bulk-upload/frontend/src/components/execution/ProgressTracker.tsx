@@ -1,5 +1,5 @@
 import React from 'react';
-import { Execution, ExecutionRecord, ExecutionRecordStatus, executionService } from '../../services/execution';
+import { ExecutionService, Execution, ExecutionRecordStatus } from '../../services/execution';
 
 interface ProgressTrackerProps {
   execution: Execution;
@@ -12,13 +12,13 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
 }) => {
   const executionRecords = execution.records || [];
   const totalSteps = executionRecords.length;
-  const completedSteps = executionRecords.filter(record => 
+  const completedSteps = executionRecords.filter((record: any) => 
     record.status === ExecutionRecordStatus.COMPLETED || record.status === ExecutionRecordStatus.SKIPPED
   ).length;
-  const inProgressSteps = executionRecords.filter(record => 
+  const inProgressSteps = executionRecords.filter((record: any) => 
     record.status === ExecutionRecordStatus.IN_PROGRESS
   ).length;
-  const failedSteps = executionRecords.filter(record => 
+  const failedSteps = executionRecords.filter((record: any) => 
     record.status === ExecutionRecordStatus.FAILED
   ).length;
 
@@ -64,8 +64,8 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
     <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium text-gray-900">执行进度</h3>
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${executionService.getStatusColor(execution.status)}`}>
-          {executionService.getStatusText(execution.status)}
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ExecutionService.getStatusColor(execution.status)}`}>
+          {ExecutionService.getStatusText(execution.status)}
         </span>
       </div>
 
@@ -109,7 +109,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
       {/* 步骤列表 */}
       <div className="space-y-2">
         <h4 className="text-sm font-medium text-gray-700 mb-3">步骤状态</h4>
-        {executionRecords.map((record, index) => (
+        {executionRecords.map((record: any) => (
           <div key={record.id} className="flex items-center space-x-3">
             <div className="flex-shrink-0">
               {getStepStatusIcon(record.status)}
@@ -119,8 +119,8 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                 <span className="text-sm text-gray-900 truncate">
                   步骤 {record.stepId}
                 </span>
-                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${executionService.getStepStatusColor(record.status)}`}>
-                  {executionService.getStepStatusText(record.status)}
+                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${ExecutionService.getStepStatusColor(record.status)}`}>
+                  {ExecutionService.getStepStatusText(record.status)}
                 </span>
               </div>
               <div className="text-xs text-gray-500">
@@ -178,7 +178,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
             <div className="col-span-2">
               <span className="font-medium text-gray-700">持续时间:</span>
               <span className="ml-2 text-gray-600">
-                {executionService.formatDuration(execution.startedAt, execution.completedAt)}
+                {ExecutionService.formatDuration(String(execution.startedAt), String(execution.completedAt))}
               </span>
             </div>
           )}

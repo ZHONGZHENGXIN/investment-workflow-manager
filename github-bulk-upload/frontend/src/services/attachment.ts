@@ -76,7 +76,7 @@ export class AttachmentService {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取缩略图URL

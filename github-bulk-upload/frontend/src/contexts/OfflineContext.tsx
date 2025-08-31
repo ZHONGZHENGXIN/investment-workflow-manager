@@ -211,7 +211,7 @@ export const useOfflineFeature = (feature: keyof OfflineCapabilities): boolean =
 };
 
 // Hook for offline-aware data fetching
-export const useOfflineData = <T>(
+export const useOfflineData = <T,>(
   key: string,
   fetcher: () => Promise<T>,
   options: {

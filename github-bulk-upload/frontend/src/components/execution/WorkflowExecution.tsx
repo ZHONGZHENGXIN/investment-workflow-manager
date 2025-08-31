@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { RootState, AppDispatch } from '../../store/store';
@@ -12,7 +12,7 @@ import {
   updateProgress,
   clearCurrentExecution 
 } from '../../store/executionSlice';
-import { ExecutionStatus, ExecutionRecord, ExecutionRecordStatus, executionService } from '../../services/execution';
+import { ExecutionStatus, ExecutionRecord, ExecutionRecordStatus, ExecutionService } from '../../services/execution';
 import StepExecution from './StepExecution';
 import ProgressTracker from './ProgressTracker';
 import toast from 'react-hot-toast';
@@ -260,11 +260,11 @@ const WorkflowExecution: React.FC = () => {
                 {currentExecution.description}
               </p>
               <div className="flex items-center space-x-4 mt-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${executionService.getStatusColor(currentExecution.status)}`}>
-                  {executionService.getStatusText(currentExecution.status)}
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ExecutionService.getStatusColor(currentExecution.status)}`}>
+                  {ExecutionService.getStatusText(currentExecution.status)}
                 </span>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${executionService.getPriorityColor(currentExecution.priority)}`}>
-                  {executionService.getPriorityText(currentExecution.priority)}
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ExecutionService.getPriorityColor(currentExecution.priority)}`}>
+                  {ExecutionService.getPriorityText(currentExecution.priority)}
                 </span>
                 <span className="text-sm text-gray-500">进度: {currentExecution.progress}%</span>
               </div>
@@ -283,7 +283,7 @@ const WorkflowExecution: React.FC = () => {
                 )}
                 {currentExecution.startedAt && (
                   <span>
-                    持续时间: {executionService.formatDuration(currentExecution.startedAt, currentExecution.completedAt)}
+                    持续时间: {ExecutionService.formatDuration(String(currentExecution.startedAt), String(currentExecution.completedAt))}
                   </span>
                 )}
               </div>

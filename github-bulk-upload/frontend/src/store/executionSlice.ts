@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { executionService, Execution, ExecutionRecord, CreateExecutionData, ExecutionStatus, ExecutionFilter, ExecutionStats } from '../services/execution';
+import { executionService, Execution, ExecutionRecord, CreateExecutionData, ExecutionFilter, ExecutionStats } from '../services/execution';
 import toast from 'react-hot-toast';
 
 // 执行状态接口
@@ -37,7 +37,7 @@ export const createExecution = createAsyncThunk(
 // 异步thunk - 获取执行列表
 export const fetchExecutions = createAsyncThunk(
   'execution/fetchExecutions',
-  async (filter?: ExecutionFilter, { rejectWithValue }) => {
+  async (filter: ExecutionFilter | undefined, { rejectWithValue }) => {
     try {
       const result = await executionService.getExecutions(filter);
       return result;
@@ -221,7 +221,7 @@ export const updateProgress = createAsyncThunk(
 // 异步thunk - 获取执行统计
 export const fetchExecutionStats = createAsyncThunk(
   'execution/fetchExecutionStats',
-  async (workflowId?: string, { rejectWithValue }) => {
+  async (workflowId: string | undefined, { rejectWithValue }) => {
     try {
       const stats = await executionService.getExecutionStats(workflowId);
       return stats;
@@ -451,4 +451,13 @@ const executionSlice = createSlice({
 });
 
 export const { clearError, setCurrentExecution, clearCurrentExecution } = executionSlice.actions;
+
+// 别名导出以保持兼容性
+export const fetchExecution = fetchExecutionById;
+export const fetchUserExecutions = fetchExecutions;
+export const startExecution = createExecution;
+
+// 添加缺失的步骤操作导出
+export const updateExecutionStep = completeStep;
+
 export default executionSlice.reducer;

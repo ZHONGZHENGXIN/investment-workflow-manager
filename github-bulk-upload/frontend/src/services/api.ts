@@ -46,28 +46,29 @@ class ApiService {
   }
 
   // GET请求
-  async get<T>(url: string): Promise<T> {
-    const response = await this.api.get<T>(url);
-    return response.data;
+  async get<T>(url: string, config?: any): Promise<T> {
+    const response = await this.api.get<T>(url, config);
+    return (response as any).data;
   }
 
   // POST请求
   async post<T>(url: string, data?: any, config?: any): Promise<T> {
     const response = await this.api.post<T>(url, data, config);
-    return response.data;
+    return (response as any).data;
   }
 
   // PUT请求
   async put<T>(url: string, data?: any): Promise<T> {
     const response = await this.api.put<T>(url, data);
-    return response.data;
+    return (response as any).data;
   }
 
   // DELETE请求
-  async delete<T>(url: string): Promise<T> {
-    const response = await this.api.delete<T>(url);
-    return response.data;
+  async delete<T>(url: string, config?: any): Promise<T> {
+    const response = await this.api.delete<T>(url, config);
+    return (response as any).data;
   }
 }
 
 export const apiService = new ApiService();
+export const api = apiService; // 兼容性导出

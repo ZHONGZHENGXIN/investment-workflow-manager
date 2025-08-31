@@ -46,7 +46,7 @@ export const reviewService = {
   async generateSummary(executionId?: string): Promise<string> {
     const params = executionId ? { executionId } : {};
     const response = await api.get('/reviews/summary', { params });
-    return response.data.summary;
+    return (response as any).data.summary;
   },
 
   // 获取趋势分析
@@ -56,27 +56,27 @@ export const reviewService = {
     reviewQualityTrends: Array<{ period: string; avgLength: number; insightCount: number }>;
   }> {
     const response = await api.get('/reviews/trends');
-    return response.data.trends;
+    return (response as any).data.trends;
   },
 
   // 获取用户复盘分析
   async getUserAnalytics(): Promise<ReviewAnalytics> {
     const response = await api.get('/reviews/analytics');
-    return response.data.analytics;
+    return (response as any).data.analytics;
   },
 
   // 获取复盘洞察
   async getReviewInsights(limit?: number): Promise<ReviewInsight[]> {
     const params = limit ? { limit } : {};
     const response = await api.get('/reviews/insights', { params });
-    return response.data.insights;
+    return (response as any).data.insights;
   },
 
   // 获取复盘模板
   async getReviewTemplate(workflowType?: string): Promise<string[]> {
     const params = workflowType ? { workflowType } : {};
     const response = await api.get('/reviews/template', { params });
-    return response.data.template;
+    return (response as any).data.template;
   },
 
   // 生成复盘报告
@@ -85,6 +85,6 @@ export const reviewService = {
       startDate,
       endDate
     });
-    return response.data.report;
+    return (response as any).data.report;
   }
 };

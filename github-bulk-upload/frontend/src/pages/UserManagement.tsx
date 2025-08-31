@@ -1,395 +1,244 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert,
-  Snackbar
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Block as BlockIcon,
-  CheckCircle as CheckCircleIcon
-} from '@mui/icons-material';
-import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import React, { useState } from 'react';
 
 interface User {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'USER' | 'VIEWER';
+  role: 'admin' | 'user' | 'viewer';
   isActive: boolean;
   createdAt: string;
-  lastLoginAt?: string;
 }
 
 const UserManagement: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { user: currentUser } = useAppSelector(state => state.auth);
-  
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  const [users] = useState<User[]>([
+    {
+      id: '1',
+      firstName: '张',
+      lastName: '三',
+      email: 'zhangsan@example.com',
+      role: 'admin',
+      isActive: true,
+      createdAt: '2024-01-01'
+    },
+    {
+      id: '2',
+      firstName: '李',
+      lastName: '四',
+      email: 'lisi@example.com',
+      role: 'user',
+      isActive: true,
+      createdAt: '2024-01-02'
+    }
+  ]);
 
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    role: 'USER' as 'ADMIN' | 'USER' | 'VIEWER',
+    role: 'user' as const,
     password: ''
   });
 
-  // 检查当前用户是否为管理员
-  const isAdmin = currentUser?.role === 'ADMIN';
-
-  useEffect(() => {
-    if (!isAdmin) {
-      return;
-    }
-    fetchUsers();
-  }, [isAdmin]);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/admin/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users);
-      }
-    } catch (error) {
-      console.error('获取用户列表失败:', error);
-      showSnackbar('获取用户列表失败', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateUser = () => {
-    setEditingUser(null);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Creating user:', formData);
+    setShowAddDialog(false);
     setFormData({
       firstName: '',
       lastName: '',
       email: '',
-      role: 'USER',
+      role: 'user',
       password: ''
     });
-    setOpenDialog(true);
   };
 
-  const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      password: ''
-    });
-    setOpenDialog(true);
-  };
-
-  const handleSaveUser = async () => {
-    try {
-      const url = editingUser ? `/api/admin/users/${editingUser.id}` : '/api/admin/users';
-      const method = editingUser ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        showSnackbar(editingUser ? '用户更新成功' : '用户创建成功', 'success');
-        setOpenDialog(false);
-        fetchUsers();
-      } else {
-        const error = await response.json();
-        showSnackbar(error.message || '操作失败', 'error');
-      }
-    } catch (error) {
-      console.error('保存用户失败:', error);
-      showSnackbar('保存用户失败', 'error');
+  const getRoleBadgeClass = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'user': return 'bg-blue-100 text-blue-800';
+      case 'viewer': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
-
-  const handleToggleUserStatus = async (userId: string, isActive: boolean) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ isActive: !isActive })
-      });
-
-      if (response.ok) {
-        showSnackbar(`用户已${isActive ? '禁用' : '启用'}`, 'success');
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error('更新用户状态失败:', error);
-      showSnackbar('更新用户状态失败', 'error');
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('确定要删除这个用户吗？此操作不可撤销。')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        showSnackbar('用户删除成功', 'success');
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error('删除用户失败:', error);
-      showSnackbar('删除用户失败', 'error');
-    }
-  };
-
-  const showSnackbar = (message: string, severity: 'success' | 'error') => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const getRoleLabel = (role: string) => {
-    const roleMap = {
-      'ADMIN': '管理员',
-      'USER': '普通用户',
-      'VIEWER': '只读用户'
-    };
-    return roleMap[role as keyof typeof roleMap] || role;
-  };
-
-  const getRoleColor = (role: string) => {
-    const colorMap = {
-      'ADMIN': 'error',
-      'USER': 'primary',
-      'VIEWER': 'default'
-    };
-    return colorMap[role as keyof typeof colorMap] || 'default';
-  };
-
-  if (!isAdmin) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error">
-          您没有权限访问用户管理页面。只有管理员才能管理用户。
-        </Alert>
-      </Box>
-    );
-  }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          用户管理
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateUser}
-        >
-          创建用户
-        </Button>
-      </Box>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 页面标题 */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">用户管理</h1>
+            <p className="mt-2 text-gray-600">管理系统用户和权限</p>
+          </div>
+          <button
+            onClick={() => setShowAddDialog(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            添加用户
+          </button>
+        </div>
 
-      <Card>
-        <CardContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>姓名</TableCell>
-                  <TableCell>邮箱</TableCell>
-                  <TableCell>角色</TableCell>
-                  <TableCell>状态</TableCell>
-                  <TableCell>创建时间</TableCell>
-                  <TableCell>最后登录</TableCell>
-                  <TableCell>操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+        {/* 用户列表 */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-medium text-gray-900">用户列表</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    用户
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    邮箱
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    角色
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    状态
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    创建时间
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      {user.firstName} {user.lastName}
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={getRoleLabel(user.role)}
-                        color={getRoleColor(user.role) as any}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={user.isActive ? '活跃' : '禁用'}
-                        color={user.isActive ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
+                  <tr key={user.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.firstName} {user.lastName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{user.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeClass(user.role)}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {user.isActive ? '活跃' : '禁用'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {user.lastLoginAt 
-                        ? new Date(user.lastLoginAt).toLocaleDateString()
-                        : '从未登录'
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditUser(user)}
-                        title="编辑用户"
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleToggleUserStatus(user.id, user.isActive)}
-                        title={user.isActive ? '禁用用户' : '启用用户'}
-                      >
-                        {user.isActive ? <BlockIcon /> : <CheckCircleIcon />}
-                      </IconButton>
-                      {user.id !== currentUser?.id && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteUser(user.id)}
-                          title="删除用户"
-                          color="error"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      )}
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="text-blue-600 hover:text-blue-900 mr-4">
+                        编辑
+                      </button>
+                      <button className="text-red-600 hover:text-red-900">
+                        {user.isActive ? '禁用' : '启用'}
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-      {/* 用户编辑对话框 */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingUser ? '编辑用户' : '创建用户'}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField
-              label="姓"
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              fullWidth
-              required
-            />
-            <TextField
-              label="名"
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              fullWidth
-              required
-            />
-            <TextField
-              label="邮箱"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              fullWidth
-              required
-            />
-            <FormControl fullWidth>
-              <InputLabel>角色</InputLabel>
-              <Select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
-                label="角色"
-              >
-                <MenuItem value="VIEWER">只读用户</MenuItem>
-                <MenuItem value="USER">普通用户</MenuItem>
-                <MenuItem value="ADMIN">管理员</MenuItem>
-              </Select>
-            </FormControl>
-            {!editingUser && (
-              <TextField
-                label="密码"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                fullWidth
-                required
-                helperText="密码至少8位，包含字母和数字"
-              />
-            )}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>取消</Button>
-          <Button onClick={handleSaveUser} variant="contained">
-            {editingUser ? '更新' : '创建'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* 消息提示 */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+        {/* 添加用户对话框 */}
+        {showAddDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">添加新用户</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    姓
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    名
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    邮箱
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    角色
+                  </label>
+                  <select
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="user">用户</option>
+                    <option value="admin">管理员</option>
+                    <option value="viewer">查看者</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    密码
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddDialog(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    创建用户
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

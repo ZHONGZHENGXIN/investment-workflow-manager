@@ -55,7 +55,7 @@ const WorkflowManagement: React.FC = () => {
     navigate(`/executions?start=${workflow.id}`);
   };
 
-  const handleSave = (workflow: Workflow) => {
+  const handleSave = () => {
     setViewMode('list');
     setSelectedWorkflow(null);
     // 刷新列表
@@ -122,7 +122,7 @@ const WorkflowManagement: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">流程步骤</h3>
                   <div className="space-y-4">
-                    {selectedWorkflow?.steps?.map((step, index) => (
+                    {selectedWorkflow?.steps?.map((step) => (
                       <div key={step.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-3">

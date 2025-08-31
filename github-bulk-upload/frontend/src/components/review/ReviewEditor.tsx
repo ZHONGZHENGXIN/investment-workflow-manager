@@ -12,7 +12,7 @@ interface ReviewEditorProps {
 }
 
 export const ReviewEditor: React.FC<ReviewEditorProps> = ({
-  executionId,
+  // executionId,
   workflowType,
   initialNotes = '',
   onSave,

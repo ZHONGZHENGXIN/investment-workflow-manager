@@ -5,7 +5,7 @@ import {
   PaginationOptions, 
   HistoryStats, 
   ExecutionHistory, 
-  HistoryResponse 
+  // HistoryResponse 
 } from '../services/history';
 
 interface HistoryState {
@@ -309,5 +309,8 @@ export const {
   clearError,
   clearCurrentExecution
 } = historySlice.actions;
+
+// 别名导出以保持兼容性
+export const fetchHistory = fetchExecutionHistory;
 
 export default historySlice.reducer;

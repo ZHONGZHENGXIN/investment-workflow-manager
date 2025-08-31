@@ -13,7 +13,7 @@ const AttachmentManagement: React.FC = () => {
   const navigate = useNavigate();
   
   const { user } = useSelector((state: RootState) => state.auth);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachments] = useState<Attachment[]>([]);
   const [stats, setStats] = useState<AttachmentStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAttachments, setSelectedAttachments] = useState<Set<string>>(new Set());
@@ -64,16 +64,16 @@ const AttachmentManagement: React.FC = () => {
     }
   };
 
-  const toggleAttachmentSelection = (attachmentId: string) => {
-    const newSelection = new Set(selectedAttachments);
-    if (newSelection.has(attachmentId)) {
-      newSelection.delete(attachmentId);
-    } else {
-      newSelection.add(attachmentId);
-    }
-    setSelectedAttachments(newSelection);
-    setShowBatchActions(newSelection.size > 0);
-  };
+  // const toggleAttachmentSelection = (attachmentId: string) => {
+  //   const newSelection = new Set(selectedAttachments);
+  //   if (newSelection.has(attachmentId)) {
+  //     newSelection.delete(attachmentId);
+  //   } else {
+  //     newSelection.add(attachmentId);
+  //   }
+  //   setSelectedAttachments(newSelection);
+  //   setShowBatchActions(newSelection.size > 0);
+  // };
 
   const selectAllAttachments = () => {
     if (selectedAttachments.size === attachments.length) {

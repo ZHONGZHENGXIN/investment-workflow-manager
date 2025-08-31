@@ -9,7 +9,7 @@ export const fetchUserWorkflows = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await workflowService.getUserWorkflows();
-      return response.data.workflows;
+      return (response as any).data.workflows;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '获取工作流列表失败';
       return rejectWithValue(message);
@@ -24,7 +24,7 @@ export const createWorkflow = createAsyncThunk(
     try {
       const response = await workflowService.createWorkflow(workflowData);
       toast.success('工作流创建成功！');
-      return response.data.workflow;
+      return (response as any).data.workflow;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '创建工作流失败';
       toast.error(message);
@@ -39,7 +39,7 @@ export const fetchWorkflowById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await workflowService.getWorkflowById(id);
-      return response.data.workflow;
+      return (response as any).data.workflow;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '获取工作流详情失败';
       return rejectWithValue(message);
@@ -54,7 +54,7 @@ export const updateWorkflow = createAsyncThunk(
     try {
       const response = await workflowService.updateWorkflow(id, updateData);
       toast.success('工作流更新成功！');
-      return response.data.workflow;
+      return (response as any).data.workflow;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '更新工作流失败';
       toast.error(message);
@@ -86,7 +86,7 @@ export const duplicateWorkflow = createAsyncThunk(
     try {
       const response = await workflowService.duplicateWorkflow(id, name);
       toast.success('工作流复制成功！');
-      return response.data.workflow;
+      return (response as any).data.workflow;
     } catch (error: any) {
       const message = error.response?.data?.error?.message || '复制工作流失败';
       toast.error(message);

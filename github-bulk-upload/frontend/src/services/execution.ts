@@ -100,7 +100,7 @@ export class ExecutionService {
   // 创建执行记录
   async createExecution(data: CreateExecutionData): Promise<Execution> {
     const response = await apiService.post<{ success: boolean; data: Execution }>('/executions', data);
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取执行记录列表
@@ -120,110 +120,110 @@ export class ExecutionService {
   // 获取执行详情
   async getExecutionById(id: string): Promise<Execution> {
     const response = await apiService.get<{ success: boolean; data: Execution }>(`/executions/${id}`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 更新执行记录
   async updateExecution(id: string, data: Partial<CreateExecutionData>): Promise<Execution> {
     const response = await apiService.put<{ success: boolean; data: Execution }>(`/executions/${id}`, data);
-    return response.data;
+    return (response as any).data;
   }
 
   // 暂停执行
   async pauseExecution(id: string): Promise<Execution> {
     const response = await apiService.post<{ success: boolean; data: Execution }>(`/executions/${id}/pause`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 恢复执行
   async resumeExecution(id: string): Promise<Execution> {
     const response = await apiService.post<{ success: boolean; data: Execution }>(`/executions/${id}/resume`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 完成执行
   async completeExecution(id: string): Promise<Execution> {
     const response = await apiService.post<{ success: boolean; data: Execution }>(`/executions/${id}/complete`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 取消执行
   async cancelExecution(id: string): Promise<Execution> {
     const response = await apiService.post<{ success: boolean; data: Execution }>(`/executions/${id}/cancel`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取执行步骤记录
   async getExecutionRecords(id: string): Promise<ExecutionRecord[]> {
     const response = await apiService.get<{ success: boolean; data: ExecutionRecord[] }>(`/executions/${id}/records`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取下一个待执行步骤
   async getNextPendingStep(id: string): Promise<ExecutionRecord | null> {
     const response = await apiService.get<{ success: boolean; data: ExecutionRecord | null }>(`/executions/${id}/next-step`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 更新执行进度
   async updateProgress(id: string): Promise<{ progress: number }> {
     const response = await apiService.put<{ success: boolean; data: { progress: number } }>(`/executions/${id}/progress`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 开始执行步骤
   async startStep(executionId: string, recordId: string): Promise<ExecutionRecord> {
     const response = await apiService.post<{ success: boolean; data: ExecutionRecord }>(`/executions/${executionId}/records/${recordId}/start`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 完成执行步骤
   async completeStep(executionId: string, recordId: string, data: { notes?: string; result?: any }): Promise<ExecutionRecord> {
     const response = await apiService.post<{ success: boolean; data: ExecutionRecord }>(`/executions/${executionId}/records/${recordId}/complete`, data);
-    return response.data;
+    return (response as any).data;
   }
 
   // 跳过执行步骤
   async skipStep(executionId: string, recordId: string, reason?: string): Promise<ExecutionRecord> {
     const response = await apiService.post<{ success: boolean; data: ExecutionRecord }>(`/executions/${executionId}/records/${recordId}/skip`, { reason });
-    return response.data;
+    return (response as any).data;
   }
 
   // 标记步骤失败
   async failStep(executionId: string, recordId: string, reason?: string): Promise<ExecutionRecord> {
     const response = await apiService.post<{ success: boolean; data: ExecutionRecord }>(`/executions/${executionId}/records/${recordId}/fail`, { reason });
-    return response.data;
+    return (response as any).data;
   }
 
   // 更新执行步骤记录
   async updateExecutionRecord(executionId: string, recordId: string, data: { notes?: string; result?: any; actualDuration?: number }): Promise<ExecutionRecord> {
     const response = await apiService.put<{ success: boolean; data: ExecutionRecord }>(`/executions/${executionId}/records/${recordId}`, data);
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取执行统计
   async getExecutionStats(workflowId?: string): Promise<ExecutionStats> {
     const params = workflowId ? `?workflowId=${workflowId}` : '';
     const response = await apiService.get<{ success: boolean; data: ExecutionStats }>(`/executions/stats${params}`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取最近的执行记录
   async getRecentExecutions(limit: number = 10): Promise<Execution[]> {
     const response = await apiService.get<{ success: boolean; data: Execution[] }>(`/executions/recent?limit=${limit}`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取进行中的执行记录
   async getInProgressExecutions(): Promise<Execution[]> {
     const response = await apiService.get<{ success: boolean; data: Execution[] }>('/executions/in-progress');
-    return response.data;
+    return (response as any).data;
   }
 
   // 获取即将到期的执行记录
   async getUpcomingExecutions(days: number = 7): Promise<Execution[]> {
     const response = await apiService.get<{ success: boolean; data: Execution[] }>(`/executions/upcoming?days=${days}`);
-    return response.data;
+    return (response as any).data;
   }
 
   // 删除执行记录

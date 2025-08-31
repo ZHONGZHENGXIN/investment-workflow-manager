@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store/store';
 import { startStep, completeStep, skipStep, failStep } from '../../store/executionSlice';
-import { ExecutionRecord, ExecutionRecordStatus, executionService } from '../../services/execution';
+import { ExecutionRecord, ExecutionRecordStatus, ExecutionService } from '../../services/execution';
 import AttachmentManager from './AttachmentManager';
 
 interface StepExecutionProps {
@@ -49,14 +49,14 @@ const StepExecution: React.FC<StepExecutionProps> = ({
 
     setIsUpdating(true);
     try {
-      const result = await dispatch(completeStep({
+      const stepResult = await dispatch(completeStep({
         executionId,
         recordId: executionRecord.id,
-        data: { notes, result }
+        data: { notes, result: notes }
       }));
 
-      if (completeStep.fulfilled.match(result)) {
-        onStepUpdate?.(result.payload);
+      if (completeStep.fulfilled.match(stepResult)) {
+        onStepUpdate?.(stepResult.payload);
       }
     } finally {
       setIsUpdating(false);
@@ -153,14 +153,14 @@ const StepExecution: React.FC<StepExecutionProps> = ({
         {/* 步骤头部 */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
-            <div className={`p-2 rounded-full ${executionService.getStepStatusColor(executionRecord.status)}`}>
+            <div className={`p-2 rounded-full ${ExecutionService.getStepStatusColor(executionRecord.status)}`}>
               {getStepIcon()}
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <h3 className="text-lg font-medium text-gray-900">步骤 {executionRecord.stepId}</h3>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${executionService.getStepStatusColor(executionRecord.status)}`}>
-                  {executionService.getStepStatusText(executionRecord.status)}
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ExecutionService.getStepStatusColor(executionRecord.status)}`}>
+                  {ExecutionService.getStepStatusText(executionRecord.status)}
                 </span>
               </div>
               <p className="text-sm text-gray-600 mt-1">执行记录 ID: {executionRecord.id}</p>

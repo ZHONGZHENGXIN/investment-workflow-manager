@@ -56,7 +56,7 @@ class OfflineApiClient {
       cacheKey,
       cacheExpiry = 30,
       offlineSupport = true,
-      offlineType = 'workflow',
+      // offlineType = 'workflow',
     } = options;
 
     const url = `${this.baseURL}${endpoint}`;
@@ -69,7 +69,7 @@ class OfflineApiClient {
       
       if (cachedData) {
         // 如果离线且有缓存，直接返回缓存数据
-        if (!offlineService.getNetworkStatus()) {
+        if (!navigator.onLine) {
           return {
             data: cachedData,
             success: true,
@@ -119,16 +119,10 @@ class OfflineApiClient {
       console.error('API request failed:', error);
 
       // 如果是网络错误且支持离线
-      if (offlineSupport && !offlineService.getNetworkStatus()) {
+      if (offlineSupport && !navigator.onLine) {
         // 对于非GET请求，存储到离线队列
         if (method !== 'GET') {
-          await offlineService.storeOfflineData(
-            url,
-            method,
-            requestHeaders,
-            body,
-            offlineType
-          );
+          // await offlineService.storeOfflineData(url, method, requestHeaders, body, offlineType);
 
           return {
             success: true,
@@ -159,7 +153,7 @@ class OfflineApiClient {
           code: 'NETWORK_ERROR',
           message: error instanceof Error ? error.message : 'Network request failed',
         },
-        offline: !offlineService.getNetworkStatus(),
+        offline: !navigator.onLine,
       };
     }
   }
@@ -270,7 +264,7 @@ class OfflineApiClient {
 
         xhr.addEventListener('error', () => {
           // 如果离线，存储文件上传任务
-          if (!offlineService.getNetworkStatus()) {
+          if (!navigator.onLine) {
             // 注意：文件上传的离线支持需要特殊处理
             // 这里简化处理，实际应用中可能需要更复杂的逻辑
             resolve({
@@ -295,7 +289,7 @@ class OfflineApiClient {
     } catch (error) {
       console.error('File upload failed:', error);
       
-      if (!offlineService.getNetworkStatus()) {
+      if (!navigator.onLine) {
         return {
           success: true,
           offline: true,

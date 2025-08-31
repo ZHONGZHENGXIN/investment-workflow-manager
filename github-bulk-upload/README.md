@@ -26,8 +26,8 @@
 - Multer文件上传
 
 ### 部署
-- Docker容器化
-- 云存储服务
+- Zeabur 云部署
+- 自动CI/CD
 
 ## 快速开始
 
@@ -54,27 +54,25 @@ npm run dev:backend
 npm run dev:frontend
 ```
 
-### Docker部署
-```bash
-# 构建镜像
-npm run docker:build
+## 🚀 Zeabur 部署
 
-# 启动服务
-npm run docker:up
+### 快速部署
+1. 推送代码到Git仓库
+2. 在 [Zeabur](https://dash.zeabur.com) 连接仓库
+3. 配置环境变量
+4. 一键部署！
 
-# 停止服务
-npm run docker:down
-```
+详细部署说明请查看 [ZEABUR_DEPLOYMENT.md](./ZEABUR_DEPLOYMENT.md)
 
 ## 项目结构
 
 ```
 investment-workflow-manager/
-├── frontend/          # React前端应用
-├── backend/           # Node.js后端API
-├── docker-compose.yml # Docker编排配置
-├── .env.example       # 环境变量示例
-└── README.md          # 项目说明
+├── frontend/              # React前端应用
+├── backend/               # Node.js后端API
+├── ZEABUR_DEPLOYMENT.md   # Zeabur部署指南
+├── .env.example           # 环境变量示例
+└── README.md              # 项目说明
 ```
 
 ## 开发指南

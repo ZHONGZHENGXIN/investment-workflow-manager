@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { WifiIcon, WifiSlashIcon, CloudArrowUpIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { WifiIcon, CloudArrowUpIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { NoSymbolIcon as WifiSlashIcon } from '@heroicons/react/24/outline';
 import { useOfflineContext } from '../../contexts/OfflineContext';
 import OfflinePanel from './OfflinePanel';
 
@@ -8,10 +9,10 @@ interface NetworkStatusProps {
   showDetails?: boolean;
 }
 
-interface OfflineStats {
-  pendingCount: number;
-  cacheCount: number;
-}
+// interface OfflineStats {
+//   pendingCount: number;
+//   cacheCount: number;
+// }
 
 const NetworkStatus: React.FC<NetworkStatusProps> = ({ 
   className = '', 

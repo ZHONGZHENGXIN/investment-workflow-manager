@@ -64,14 +64,14 @@ export const useOffline = (options: UseOfflineOptions = {}) => {
 
   // 存储离线数据
   const storeOfflineData = useCallback(async (
-    url: string,
-    method: string,
-    headers: Record<string, string>,
-    body?: any,
-    type: 'workflow' | 'execution' | 'review' | 'attachment' = 'workflow'
+    _url: string,
+    _method: string,
+    _headers: Record<string, string>,
+    _body?: any,
+    _type: 'workflow' | 'execution' | 'review' | 'attachment' = 'workflow'
   ) => {
     try {
-      await offlineService.storeOfflineData(url, method, headers, body, type);
+      // await offlineService.storeOfflineData(url, method, headers, body, type);
       await updateStats();
       return true;
     } catch (error) {

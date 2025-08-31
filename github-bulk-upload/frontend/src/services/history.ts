@@ -89,7 +89,7 @@ export const historyService = {
     };
     
     const response = await api.get('/history/executions', { params });
-    return response.data;
+    return (response as any).data;
   },
 
   // 高级搜索
@@ -115,19 +115,19 @@ export const historyService = {
     };
 
     const response = await api.post('/history/search', searchOptions, { params });
-    return response.data;
+    return (response as any).data;
   },
 
   // 获取历史统计
   async getHistoryStats(): Promise<HistoryStats> {
     const response = await api.get('/history/stats');
-    return response.data.stats;
+    return (response as any).data.stats;
   },
 
   // 获取执行详情
   async getExecutionDetail(id: string): Promise<ExecutionHistory> {
     const response = await api.get(`/history/executions/${id}`);
-    return response.data.execution;
+    return (response as any).data.execution;
   },
 
   // 删除执行记录
@@ -140,7 +140,7 @@ export const historyService = {
     const response = await api.delete('/history/executions/batch', {
       data: { executionIds }
     });
-    return response.data;
+    return (response as any).data;
   },
 
   // 获取聚合数据
@@ -151,7 +151,7 @@ export const historyService = {
     const response = await api.get(`/history/aggregate/${groupBy}`, {
       params: filters
     });
-    return response.data.aggregatedData;
+    return (response as any).data.aggregatedData;
   },
 
   // 导出执行记录
@@ -177,7 +177,7 @@ export const historyService = {
       responseType: 'blob'
     });
 
-    return response.data;
+    return (response as any).data;
   },
 
   // 生成导出文件名

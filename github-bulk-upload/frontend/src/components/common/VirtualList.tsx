@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 
 interface VirtualListProps<T> {
   items: T[];
@@ -81,22 +81,22 @@ function VirtualList<T>({
   }, [onScroll]);
 
   // 滚动到指定项目
-  const scrollToItem = useCallback((index: number, align: 'start' | 'center' | 'end' = 'start') => {
-    if (!containerRef.current || index < 0 || index >= items.length) return;
+  // const scrollToItem = useCallback((index: number, align: 'start' | 'center' | 'end' = 'start') => {
+  //   if (!containerRef.current || index < 0 || index >= items.length) return;
 
-    const itemTop = itemPositions[index];
-    const itemHeight = getItemHeightValue(index, items[index]);
+  //   const itemTop = itemPositions[index];
+  //   const itemHeight = getItemHeightValue(index, items[index]);
     
-    let scrollTo = itemTop;
+  //   let scrollTo = itemTop;
 
-    if (align === 'center') {
-      scrollTo = itemTop - (containerHeight - itemHeight) / 2;
-    } else if (align === 'end') {
-      scrollTo = itemTop - containerHeight + itemHeight;
-    }
+  //   if (align === 'center') {
+  //     scrollTo = itemTop - (containerHeight - itemHeight) / 2;
+  //   } else if (align === 'end') {
+  //     scrollTo = itemTop - containerHeight + itemHeight;
+  //   }
 
-    containerRef.current.scrollTop = Math.max(0, Math.min(scrollTo, totalHeight - containerHeight));
-  }, [items, itemPositions, containerHeight, totalHeight, getItemHeightValue]);
+  //   containerRef.current.scrollTop = Math.max(0, Math.min(scrollTo, totalHeight - containerHeight));
+  // }, [items, itemPositions, containerHeight, totalHeight, getItemHeightValue]);
 
   // 渲染可见项目
   const visibleItems = useMemo(() => {
@@ -183,19 +183,19 @@ export function FixedVirtualList<T>({
     onScroll?.(newScrollTop);
   }, [onScroll]);
 
-  const scrollToItem = useCallback((index: number, align: 'start' | 'center' | 'end' = 'start') => {
-    if (!containerRef.current || index < 0 || index >= items.length) return;
+  // const scrollToItem = useCallback((index: number, align: 'start' | 'center' | 'end' = 'start') => {
+  //   if (!containerRef.current || index < 0 || index >= items.length) return;
 
-    let scrollTo = index * itemHeight;
+  //   let scrollTo = index * itemHeight;
 
-    if (align === 'center') {
-      scrollTo = scrollTo - (containerHeight - itemHeight) / 2;
-    } else if (align === 'end') {
-      scrollTo = scrollTo - containerHeight + itemHeight;
-    }
+  //   if (align === 'center') {
+  //     scrollTo = scrollTo - (containerHeight - itemHeight) / 2;
+  //   } else if (align === 'end') {
+  //     scrollTo = scrollTo - containerHeight + itemHeight;
+  //   }
 
-    containerRef.current.scrollTop = Math.max(0, Math.min(scrollTo, totalHeight - containerHeight));
-  }, [items.length, itemHeight, containerHeight, totalHeight]);
+  //   containerRef.current.scrollTop = Math.max(0, Math.min(scrollTo, totalHeight - containerHeight));
+  // }, [items.length, itemHeight, containerHeight, totalHeight]);
 
   const visibleItems = useMemo(() => {
     const items_to_render = [];
