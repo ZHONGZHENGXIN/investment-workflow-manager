@@ -1,7 +1,7 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
-import { simpleLogger, simpleBusinessLogger, simplePerformanceLogger, simpleErrorLogger, simpleAuditLogger } from './logger.simple';
+// 简化版logger已移除，使用标准logger
 
 // 日志级别
 const logLevels = {

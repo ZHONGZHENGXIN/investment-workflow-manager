@@ -1,17 +1,21 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
     "skipLibCheck": true,
     "noImplicitAny": false,
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
   },
   "include": [
-    "src/index.deploy.ts",
-    "src/config/database.ts"
+    "src/index.deploy.ts"
   ],
   "exclude": [
     "node_modules",

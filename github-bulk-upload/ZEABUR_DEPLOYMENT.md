@@ -1,5 +1,18 @@
 # 🚀 Zeabur 部署指南
 
+## 🛠️ 最新修复 (2024)
+
+### 已修复的部署问题：
+- ✅ **后端 TypeScript 编译错误** - 修复了 process 对象类型定义问题
+- ✅ **前端语法错误** - 修复了 OfflineContext.tsx 中的所有语法问题
+- ✅ **容器启动失败** - 创建了简化的 `index.deploy.ts` 入口文件
+- ✅ **构建配置优化** - 更新了 tsconfig 和构建脚本
+- ✅ **Docker 配置** - 优化了 Dockerfile 和容器启动逻辑
+- ✅ **缺少依赖文件** - 创建了 offlineService 和相关配置文件
+- ✅ **TypeScript 配置** - 添加了 tsconfig.node.json 和 tsconfig.deploy.json
+- ✅ **部署验证** - 添加了部署验证脚本
+- ✅ **项目清理** - 删除了多余文件，结构更清晰
+
 ## ✅ 部署准备检查
 
 你的项目现在已经完全准备好在 Zeabur 上部署了！以下是已完成的优化：

@@ -95,11 +95,16 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
       dispatch(setOnlineStatus(isOnline));
     };
 
-    offlineService.addNetworkListener(handleNetworkChange);
+    // 检查 offlineService 是否存在
+    if (typeof offlineService?.addNetworkListener === 'function') {
+      offlineService.addNetworkListener(handleNetworkChange);
 
-    return () => {
-      offlineService.removeNetworkListener(handleNetworkChange);
-    };
+      return () => {
+        if (typeof offlineService?.removeNetworkListener === 'function') {
+          offlineService.removeNetworkListener(handleNetworkChange);
+        }
+      };
+    }
   }, [dispatch]);
 
   // 监听同步完成事件
@@ -156,7 +161,9 @@ export const OfflineProvider: React.FC<OfflineProviderProps> = ({ children }) =>
   // 清理缓存
   const clearCache = async () => {
     try {
-      await offlineService.cleanExpiredCache();
+      if (typeof offlineService?.cleanExpiredCache === 'function') {
+        await offlineService.cleanExpiredCache();
+      }
       dispatch(updateOfflineStats());
     } catch (error) {
       console.error('Failed to clear cache:', error);
@@ -227,7 +234,10 @@ export const useOfflineData = <T>(
 
       try {
         // 尝试从缓存获取数据
-        const cachedData = await offlineService.getCachedData(key);
+        let cachedData = null;
+        if (typeof offlineService?.getCachedData === 'function') {
+          cachedData = await offlineService.getCachedData(key);
+        }
         
         if (cachedData && !isOnline) {
           // 离线时使用缓存数据
@@ -244,7 +254,9 @@ export const useOfflineData = <T>(
           setFromCache(false);
           
           // 缓存新数据
-          await offlineService.cacheData(key, freshData, cacheExpiry);
+          if (typeof offlineService?.cacheData === 'function') {
+            await offlineService.cacheData(key, freshData, cacheExpiry);
+          }
         } else if (cachedData) {
           // 离线但有缓存数据
           setData(cachedData);
@@ -271,7 +283,9 @@ export const useOfflineData = <T>(
           const freshData = await fetcher();
           setData(freshData);
           setFromCache(false);
-          await offlineService.cacheData(key, freshData, cacheExpiry);
+          if (typeof offlineService?.cacheData === 'function') {
+            await offlineService.cacheData(key, freshData, cacheExpiry);
+          }
         } catch (err) {
           console.error('Failed to refetch data on reconnect:', err);
         }

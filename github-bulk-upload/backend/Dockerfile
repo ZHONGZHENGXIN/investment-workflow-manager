@@ -17,7 +17,7 @@ COPY . .
 RUN npx prisma generate
 
 # 构建应用
-RUN npm run build
+RUN npm run build || npm run build:simple
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs

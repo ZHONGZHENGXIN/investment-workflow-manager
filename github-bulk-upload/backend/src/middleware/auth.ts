@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/authService';
 import { analyticsSystem } from '../utils/analytics';
-import { businessLogger, auditLogger } from '../utils/logger.simple';
+import { logger } from '../utils/logger';
 
 // 扩展Request接口以包含用户信息和会话ID
 declare global {
