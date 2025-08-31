@@ -1,5 +1,5 @@
 import path from 'path';
-import prisma from '../utils/database';
+import prisma from '../config/database';
 import { 
   getFileType, 
   validateFileType, 

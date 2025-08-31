@@ -112,3 +112,33 @@ public
 # Temporary folders
 .tmp
 .temp
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# PM2
+.pm2/
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.backup
+*.bak
+
+# Editor files
+*.sublime-project
+*.sublime-workspace
+
+# Package files
+*.tar.gz
+*.zip
+*.rar
+
+# Local configuration
+config/local.json
+config/production.json

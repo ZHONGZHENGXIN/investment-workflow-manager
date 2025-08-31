@@ -1,4 +1,4 @@
-import { logger, businessLogger } from './logger.simple';
+import { logger, businessLogger } from './logger';
 import { metricsCollector } from './metrics';
 
 interface UserSession {

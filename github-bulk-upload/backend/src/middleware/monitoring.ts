@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { performance } from 'perf_hooks';
-import { logger } from '../utils/logger.simple';
+import { logger } from '../utils/logger';
 import { metricsCollector } from '../utils/metrics';
 
 // 性能监控中间件

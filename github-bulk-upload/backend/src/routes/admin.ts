@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
 import { body, param, query } from 'express-validator';
-import { logger } from '../utils/logger.simple';
+import { logger } from '../utils/logger';
 
 const router = Router();
 const prisma = new PrismaClient();

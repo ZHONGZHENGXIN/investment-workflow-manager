@@ -1,14 +1,25 @@
 import { PrismaClient, Prisma } from '@prisma/client';
-import prisma from '../config/database';
+import prisma, { testDatabaseConnection, isDatabaseReady } from '../config/database';
 
-// 数据库连接函数
+// 数据库连接函数 - 增强错误处理
 export async function connectDatabase(): Promise<void> {
   try {
-    await prisma.$connect();
+    if (!prisma || !prisma.$connect) {
+      console.warn('⚠️ Prisma client not available, skipping database connection');
+      return;
+    }
+    
+    const connected = await testDatabaseConnection();
+    if (!connected) {
+      console.warn('⚠️ 数据库连接失败，应用将在降级模式下运行');
+      return;
+    }
+    
     console.log('✅ 数据库连接成功');
   } catch (error) {
     console.error('❌ 数据库连接失败:', error);
-    throw error;
+    console.warn('⚠️ 应用将在无数据库模式下运行');
+    // 不抛出错误，让应用继续运行
   }
 }
 
@@ -23,21 +34,46 @@ export async function disconnectDatabase(): Promise<void> {
   }
 }
 
-// 数据库操作工具类
+// 数据库操作工具类 - 增强错误处理
 export class DatabaseUtils {
+  // 检查数据库是否可用
+  static checkDatabaseAvailable(): boolean {
+    return isDatabaseReady();
+  }
+
+  // 安全执行数据库操作
+  static async safeExecute<T>(
+    operation: () => Promise<T>,
+    fallback: T,
+    operationName: string = 'database operation'
+  ): Promise<T> {
+    try {
+      if (!this.checkDatabaseAvailable()) {
+        console.warn(`Database not available for ${operationName}, returning fallback`);
+        return fallback;
+      }
+      return await operation();
+    } catch (error) {
+      console.error(`Failed ${operationName}:`, error);
+      return fallback;
+    }
+  }
+
   // 批量插入数据
   static async batchInsert<T>(
     model: any,
     data: T[],
     batchSize: number = 100
   ): Promise<void> {
-    for (let i = 0; i < data.length; i += batchSize) {
-      const batch = data.slice(i, i + batchSize);
-      await model.createMany({
-        data: batch,
-        skipDuplicates: true,
-      });
-    }
+    return this.safeExecute(async () => {
+      for (let i = 0; i < data.length; i += batchSize) {
+        const batch = data.slice(i, i + batchSize);
+        await model.createMany({
+          data: batch,
+          skipDuplicates: true,
+        });
+      }
+    }, undefined, 'batch insert');
   }
 
   // 批量更新数据

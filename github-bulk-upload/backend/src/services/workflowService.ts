@@ -1,4 +1,4 @@
-import prisma from '../utils/database';
+import prisma from '../config/database';
 import { CreateWorkflowDto, UpdateWorkflowDto, Workflow } from '../types/workflow';
 
 export class WorkflowService {

@@ -3,12 +3,37 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { connectDatabase } from './utils/database';
+import { testDatabaseConnection } from './config/database';
 
 // Import monitoring utilities
 import { logger } from './utils/logger';
 import { performanceMonitoring, errorMonitoring, userBehaviorTracking, systemResourceMonitoring } from './middleware/monitoring';
 import { analyticsSystem } from './utils/analytics';
+
+// 全局错误处理
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
+  // 不退出进程，让应用继续运行
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error('Unhandled Rejection', { reason, promise });
+  // 不退出进程，让应用继续运行
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  logger.info('Server shutting down gracefully');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  logger.info('Server shutting down gracefully');
+  process.exit(0);
+});
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -83,18 +108,28 @@ app.use(errorHandler);
 // 启动服务器
 const startServer = async () => {
   try {
-    // 连接数据库
-    await connectDatabase();
+    // 尝试连接数据库，但不阻塞服务器启动
+    const dbConnected = await testDatabaseConnection();
+    if (!dbConnected) {
+      console.warn('⚠️ 数据库连接失败，服务器将在降级模式下运行');
+      logger.warn('Database connection failed, server running in degraded mode');
+    }
     
-    // 启动系统资源监控
-    systemResourceMonitoring();
+    // 启动系统资源监控（如果可用）
+    try {
+      systemResourceMonitoring();
+    } catch (error) {
+      console.warn('⚠️ 系统资源监控启动失败:', error);
+      logger.warn('System resource monitoring failed to start', { error });
+    }
     
     app.listen(PORT, () => {
       logger.info('Server started successfully', {
         port: PORT,
         environment: process.env.NODE_ENV || 'development',
         nodeVersion: process.version,
-        pid: process.pid
+        pid: process.pid,
+        databaseConnected: dbConnected
       });
       
       console.log(`🚀 服务器运行在端口 ${PORT}`);
@@ -103,11 +138,34 @@ const startServer = async () => {
       console.log(`📈 监控接口: http://localhost:${PORT}/monitoring`);
       console.log(`🔍 健康检查: http://localhost:${PORT}/monitoring/health`);
       console.log(`📊 指标数据: http://localhost:${PORT}/monitoring/metrics`);
+      
+      if (!dbConnected) {
+        console.log(`⚠️ 注意: 数据库未连接，某些功能可能不可用`);
+      }
     });
   } catch (error) {
     logger.error('Server startup failed', { error });
     console.error('❌ 服务器启动失败:', error);
-    process.exit(1);
+    
+    // 即使启动失败，也尝试启动一个基础服务器
+    try {
+      const basicApp = express();
+      basicApp.use(express.json());
+      basicApp.get('/health', (req, res) => {
+        res.status(503).json({ 
+          status: 'ERROR', 
+          message: 'Server in emergency mode',
+          timestamp: new Date().toISOString() 
+        });
+      });
+      
+      basicApp.listen(PORT, () => {
+        console.log(`🆘 紧急模式服务器运行在端口 ${PORT}`);
+      });
+    } catch (emergencyError) {
+      console.error('❌ 紧急模式启动也失败:', emergencyError);
+      process.exit(1);
+    }
   }
 };
 

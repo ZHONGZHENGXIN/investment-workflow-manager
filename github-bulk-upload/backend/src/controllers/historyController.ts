@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { HistoryService, HistorySearchFilters, PaginationOptions } from '../services/historyService';
-import prisma from '../utils/database';
+import prisma from '../config/database';
 
 const historyService = new HistoryService();
 

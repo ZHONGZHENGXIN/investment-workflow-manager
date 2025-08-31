@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { logger } from './logger.simple';
+import { logger } from './logger';
 import { metricsCollector } from './metrics';
 
 interface AlertRule {

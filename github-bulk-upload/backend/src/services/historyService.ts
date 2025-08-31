@@ -1,4 +1,4 @@
-import prisma from '../utils/database';
+import prisma from '../config/database';
 
 export interface HistorySearchFilters {
   workflowId?: string;

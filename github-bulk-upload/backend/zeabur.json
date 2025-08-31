@@ -1,0 +1,14 @@
+{
+  "name": "investment-workflow-backend",
+  "build": {
+    "commands": [
+      "npm install",
+      "npx prisma generate",
+      "npm run build"
+    ]
+  },
+  "start": "npm start",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

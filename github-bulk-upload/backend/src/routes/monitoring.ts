@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { metricsCollector } from '../utils/metrics';
 import { alertingSystem } from '../utils/alerting.simple';
 import { analyticsSystem } from '../utils/analytics';
-import { logger } from '../utils/logger.simple';
+import { logger } from '../utils/logger';
 import { authenticateToken } from '../middleware/auth';
 import { requireRole } from '../middleware/permissions.simple';
 

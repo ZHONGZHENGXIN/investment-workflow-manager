@@ -1,4 +1,4 @@
-import prisma from '../utils/database';
+import prisma from '../config/database';
 import { Execution, ExecutionRecord, ExecutionStatus, StepStatus } from '../types/execution';
 
 export class ExecutionService {

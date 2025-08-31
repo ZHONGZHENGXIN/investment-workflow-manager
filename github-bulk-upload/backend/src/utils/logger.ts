@@ -1,6 +1,7 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
+import { simpleLogger, simpleBusinessLogger, simplePerformanceLogger, simpleErrorLogger, simpleAuditLogger } from './logger.simple';
 
 // 日志级别
 const logLevels = {
@@ -105,42 +106,85 @@ const fileTransports = [
   })
 ];
 
-// 创建logger实例
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  levels: logLevels,
-  format: logFormat,
-  transports: fileTransports,
-  exitOnError: false
-});
+// 创建logger实例，添加容错处理
+let logger: winston.Logger;
+let useSimpleLogger = false;
 
-// 开发环境添加控制台输出
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: consoleFormat
-  }));
+try {
+  logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    levels: logLevels,
+    format: logFormat,
+    transports: fileTransports,
+    exitOnError: false
+  });
+
+  // 开发环境添加控制台输出
+  if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+      format: consoleFormat
+    }));
+  }
+
+  // 生产环境错误处理
+  if (process.env.NODE_ENV === 'production') {
+    // 可以添加外部日志服务，如Sentry、LogRocket等
+    logger.add(new winston.transports.Console({
+      level: 'error',
+      format: consoleFormat
+    }));
+  }
+
+  // 测试logger是否正常工作
+  logger.info('Logger initialized successfully');
+} catch (error) {
+  console.warn('Failed to initialize winston logger, falling back to simple logger:', error);
+  useSimpleLogger = true;
+  logger = simpleLogger as any;
 }
 
-// 生产环境错误处理
-if (process.env.NODE_ENV === 'production') {
-  // 可以添加外部日志服务，如Sentry、LogRocket等
-  logger.add(new winston.transports.Console({
-    level: 'error',
-    format: consoleFormat
-  }));
-}
+// 创建安全的日志记录函数
+const safeLog = (level: string, message: string, meta?: any) => {
+  try {
+    if (useSimpleLogger) {
+      (simpleLogger as any)[level](message, meta);
+    } else {
+      (logger as any)[level](message, meta);
+    }
+  } catch (error) {
+    console.error(`Logging failed for level ${level}:`, error);
+    console.log(`Original message: ${message}`, meta);
+  }
+};
+
+// 重新包装logger方法以提供容错性
+const safeLogger = {
+  error: (message: string, meta?: any) => safeLog('error', message, meta),
+  warn: (message: string, meta?: any) => safeLog('warn', message, meta),
+  info: (message: string, meta?: any) => safeLog('info', message, meta),
+  http: (message: string, meta?: any) => safeLog('http', message, meta),
+  debug: (message: string, meta?: any) => safeLog('debug', message, meta)
+};
 
 // 业务日志记录器
 export const businessLogger = {
   // 用户操作日志
   userAction: (userId: string, action: string, details: any = {}) => {
-    logger.info('User action', {
-      category: 'user_action',
-      userId,
-      action,
-      details,
-      timestamp: new Date().toISOString()
-    });
+    try {
+      if (useSimpleLogger) {
+        simpleBusinessLogger.userAction(userId, action, details);
+      } else {
+        logger.info('User action', {
+          category: 'user_action',
+          userId,
+          action,
+          details,
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Failed to log user action:', error);
+    }
   },
 
   // 工作流操作日志
@@ -350,8 +394,8 @@ export const auditLogger = {
   }
 };
 
-// 导出主logger
-export { logger };
+// 导出安全的logger
+export { safeLogger as logger };
 
 // 日志统计
 export const logStats = {
