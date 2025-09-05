@@ -88,7 +88,7 @@ export const historyService = {
       ...pagination
     };
     
-    const response = await api.get('/history/executions', { params });
+    const response = await api.get('/history', { params });
     return (response as any).data;
   },
 
@@ -120,24 +120,24 @@ export const historyService = {
 
   // 获取历史统计
   async getHistoryStats(): Promise<HistoryStats> {
-    const response = await api.get('/history/stats');
+    const response = await api.get('/history');
     return (response as any).data.stats;
   },
 
   // 获取执行详情
   async getExecutionDetail(id: string): Promise<ExecutionHistory> {
-    const response = await api.get(`/history/executions/${id}`);
-    return (response as any).data.execution;
+    const response = await api.get(`/executions/${id}`);
+    return (response as any).data;
   },
 
   // 删除执行记录
   async deleteExecution(id: string): Promise<void> {
-    await api.delete(`/history/executions/${id}`);
+    await api.delete(`/executions/${id}`);
   },
 
   // 批量删除执行记录
   async batchDeleteExecutions(executionIds: string[]): Promise<{ deletedCount: number }> {
-    const response = await api.delete('/history/executions/batch', {
+    const response = await api.delete('/executions/batch', {
       data: { executionIds }
     });
     return (response as any).data;

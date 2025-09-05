@@ -48,48 +48,25 @@ const RegisterForm: React.FC = () => {
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                  名字
-                </label>
-                <input
-                  {...register('firstName', {
-                    required: '名字是必填项',
-                    minLength: {
-                      value: 1,
-                      message: '名字不能为空',
-                    },
-                  })}
-                  type="text"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="名字"
-                />
-                {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
-                )}
-              </div>
-              
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                  姓氏
-                </label>
-                <input
-                  {...register('lastName', {
-                    required: '姓氏是必填项',
-                    minLength: {
-                      value: 1,
-                      message: '姓氏不能为空',
-                    },
-                  })}
-                  type="text"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="姓氏"
-                />
-                {errors.lastName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
-                )}
-              </div>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                姓名
+              </label>
+              <input
+                {...register('name', {
+                  required: '姓名是必填项',
+                  minLength: {
+                    value: 2,
+                    message: '姓名至少需要2个字符',
+                  },
+                })}
+                type="text"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="请输入您的姓名"
+              />
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              )}
             </div>
 
             <div>

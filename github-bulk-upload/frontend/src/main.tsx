@@ -10,13 +10,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 
-// 注册 Service Worker
-register({
-  onSuccess: (registration) => {
-    console.log('Service Worker registered successfully:', registration);
-  },
-  onUpdate: (registration) => {
-    console.log('Service Worker updated:', registration);
-    showUpdateAvailableNotification(registration);
-  },
-});
+// 在生产环境中注册 Service Worker
+if (import.meta.env.PROD) {
+  register({
+    onSuccess: (registration) => {
+      console.log('Service Worker registered successfully:', registration);
+    },
+    onUpdate: (registration) => {
+      console.log('Service Worker updated:', registration);
+      showUpdateAvailableNotification(registration);
+    },
+  });
+}

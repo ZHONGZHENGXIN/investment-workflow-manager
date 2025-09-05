@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? 'https://your-backend.zeabur.app/api' : 'http://localhost:3000/api');
+  (import.meta.env.PROD ? 'https://investment-workflow-manager.zeabur.app/api' : 'http://localhost:3000/api');
 
 class ApiService {
   private api: AxiosInstance;

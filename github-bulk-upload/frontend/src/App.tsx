@@ -15,11 +15,13 @@ import {
   LoginForm,
   RegisterForm,
   WorkflowExecution,
+  UserManagement,
   preloadCriticalRoutes,
 } from './routes/LazyRoutes';
 import LazyRoute from './components/common/LazyRoute';
 import PerformanceMonitor from './components/common/PerformanceMonitor';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import Layout from './components/layout/Layout';
 
 // 应用初始化组件
 const AppInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -61,9 +63,11 @@ function App() {
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <Dashboard />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <Dashboard />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -71,9 +75,11 @@ function App() {
                 path="/workflows"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <WorkflowManagement />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <WorkflowManagement />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -81,9 +87,11 @@ function App() {
                 path="/attachments"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <AttachmentManagement />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <AttachmentManagement />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -91,9 +99,11 @@ function App() {
                 path="/executions"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <ExecutionPage />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <ExecutionPage />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -101,9 +111,11 @@ function App() {
                 path="/executions/:id"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <WorkflowExecution />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <WorkflowExecution />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -111,9 +123,11 @@ function App() {
                 path="/reviews"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <ReviewPage />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <ReviewPage />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -121,18 +135,32 @@ function App() {
                 path="/history"
                 element={
                   <ProtectedRoute>
-                    <LazyRoute>
-                      <HistoryPage />
-                    </LazyRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <HistoryPage />
+                      </LazyRoute>
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <LazyRoute>
+                        <UserManagement />
+                      </LazyRoute>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
               
               {/* 默认重定向 */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
               
               {/* 404页面 */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
             <Toaster position="top-right" />
             <PerformanceMonitor />

@@ -70,7 +70,9 @@ export class AttachmentService {
 
   // 下载文件
   async downloadFile(attachmentId: string): Promise<Blob> {
-    const response = await axios.get(`/api/attachments/${attachmentId}/download`, {
+    const baseUrl = import.meta.env.VITE_API_URL || 
+      (import.meta.env.PROD ? 'https://investment-workflow-manager-backend.zeabur.app/api' : 'http://localhost:3001/api');
+    const response = await axios.get(`${baseUrl}/attachments/${attachmentId}/download`, {
       responseType: 'blob',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -82,7 +84,8 @@ export class AttachmentService {
   // 获取缩略图URL
   getThumbnailUrl(attachmentId: string): string {
     const token = localStorage.getItem('token');
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const baseUrl = import.meta.env.VITE_API_URL || 
+      (import.meta.env.PROD ? 'https://investment-workflow-manager-backend.zeabur.app/api' : 'http://localhost:3001/api');
     return `${baseUrl}/attachments/${attachmentId}/thumbnail?token=${token}`;
   }
 

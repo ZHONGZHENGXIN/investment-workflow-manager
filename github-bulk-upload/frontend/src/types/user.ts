@@ -1,10 +1,10 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  role: 'admin' | 'user' | 'analyst';
   createdAt: string;
-  updatedAt: string;
+  lastLogin?: string;
 }
 
 export interface LoginCredentials {
@@ -15,8 +15,7 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name: string;
 }
 
 export interface AuthResponse {

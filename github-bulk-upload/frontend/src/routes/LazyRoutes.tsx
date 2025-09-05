@@ -8,6 +8,7 @@ export const ExecutionPage = lazy(() => import('../pages/ExecutionPage'));
 export const ReviewPage = lazy(() => import('../pages/ReviewPage'));
 export const HistoryPage = lazy(() => import('../pages/HistoryPage'));
 export const WorkflowExecution = lazy(() => import('../pages/WorkflowExecution'));
+export const UserManagement = lazy(() => import('../pages/UserManagement'));
 
 // 认证组件懒加载
 export const LoginForm = lazy(() => import('../components/auth/LoginForm'));

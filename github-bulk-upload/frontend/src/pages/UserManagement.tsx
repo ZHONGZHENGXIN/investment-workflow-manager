@@ -1,57 +1,51 @@
-import React, { useState } from 'react';
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: 'admin' | 'user' | 'viewer';
-  isActive: boolean;
-  createdAt: string;
-}
+import React, { useState, useEffect } from 'react';
+import { userService, User } from '../services/user';
 
 const UserManagement: React.FC = () => {
-  const [users] = useState<User[]>([
-    {
-      id: '1',
-      firstName: '张',
-      lastName: '三',
-      email: 'zhangsan@example.com',
-      role: 'admin',
-      isActive: true,
-      createdAt: '2024-01-01'
-    },
-    {
-      id: '2',
-      firstName: '李',
-      lastName: '四',
-      email: 'lisi@example.com',
-      role: 'user',
-      isActive: true,
-      createdAt: '2024-01-02'
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await userService.getUsers();
+      setUsers(response.data);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || '加载用户列表失败');
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     role: 'user' as const,
     password: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating user:', formData);
-    setShowAddDialog(false);
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      role: 'user',
-      password: ''
-    });
+    try {
+      await userService.createUser(formData);
+      setShowAddDialog(false);
+      setFormData({
+        name: '',
+        email: '',
+        role: 'user',
+        password: ''
+      });
+      loadUsers(); // 重新加载用户列表
+    } catch (error: any) {
+      setError(error.message || '创建用户失败');
+    }
   };
 
   const getRoleBadgeClass = (role: string) => {
@@ -64,8 +58,7 @@ const UserManagement: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 页面标题 */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -79,6 +72,13 @@ const UserManagement: React.FC = () => {
             添加用户
           </button>
         </div>
+
+        {/* 错误提示 */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
 
         {/* 用户列表 */}
         <div className="bg-white shadow rounded-lg">
@@ -110,11 +110,24 @@ const UserManagement: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                      加载中...
+                    </td>
+                  </tr>
+                ) : users.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                      暂无用户数据
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
                   <tr key={user.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {user.firstName} {user.lastName}
+                        {user.name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -126,10 +139,8 @@ const UserManagement: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.isActive ? '活跃' : '禁用'}
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        活跃
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -140,11 +151,12 @@ const UserManagement: React.FC = () => {
                         编辑
                       </button>
                       <button className="text-red-600 hover:text-red-900">
-                        {user.isActive ? '禁用' : '启用'}
+                        禁用
                       </button>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -158,24 +170,12 @@ const UserManagement: React.FC = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    姓
+                    姓名
                   </label>
                   <input
                     type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    名
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
@@ -237,7 +237,6 @@ const UserManagement: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 };
